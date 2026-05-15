@@ -1,0 +1,7 @@
+
+path: C:\Users\avina\OneDrive\Documents\computer vision\Real-Time-Detection-of-Helmet-Violations-and-Capturing-Bike-Numbers-from-Number-Plates\dataset
+train: train/images
+val: val/images
+
+nc: 4
+names: ['rider', 'with_helmet', 'without_helmet', 'number_plate']

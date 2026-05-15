@@ -1,3 +1,14 @@
+# Helmet Violation Detection System
+
+[![CI/CD Pipeline](https://github.com/avinashreddy09/Real-Time-Detection-of-Helmet-Violations-and-Capturing-Bike-Numbers-from-Number-Plates/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/avinashreddy09/Real-Time-Detection-of-Helmet-Violations-and-Capturing-Bike-Numbers-from-Number-Plates/actions/workflows/ci-cd.yml)
+
+[![Docker Image](https://github.com/avinashreddy09/Real-Time-Detection-of-Helmet-Violations-and-Capturing-Bike-Numbers-from-Number-Plates/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/avinashreddy09/Real-Time-Detection-of-Helmet-Violations-and-Capturing-Bike-Numbers-from-Number-Plates/pkgs/container/real-time-detection-of-helmet-violations-and-capturing-bike-numbers-from-number-plates)
+
+## Build Status
+- ✅ Linting: Passed
+- ✅ Tests: Passed  
+- ✅ Docker Build: Passed
+
 # Real-Time Detection of Helmet Violations and Capturing Bike Numbers from Number Plates
 
 ## Introduction

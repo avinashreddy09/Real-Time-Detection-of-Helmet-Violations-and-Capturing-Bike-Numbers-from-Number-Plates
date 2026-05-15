@@ -1,0 +1,14 @@
+# Helmet Detection Dataset
+path: C:\Users\avina\OneDrive\Documents\computer vision\Real-Time-Detection-of-Helmet-Violations-and-Capturing-Bike-Numbers-from-Number-Plates\dataset
+train: train/images
+val: val/images
+
+# Number of classes
+nc: 4
+
+# Class names
+names:
+  0: rider
+  1: with_helmet
+  2: without_helmet
+  3: number_plate

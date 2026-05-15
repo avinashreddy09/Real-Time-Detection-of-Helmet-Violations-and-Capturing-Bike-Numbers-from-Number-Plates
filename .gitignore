@@ -1,0 +1,33 @@
+# Virtual environment
+helmet_env_py39/
+helmet_env/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Output videos (large files)
+*.mp4
+*.avi
+*.mov
+*.gif
+
+# Model files (large)
+*.pt
+*.pth
+yolo-weights/
+
+# Dataset (already downloaded)
+dataset/
+runs/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log

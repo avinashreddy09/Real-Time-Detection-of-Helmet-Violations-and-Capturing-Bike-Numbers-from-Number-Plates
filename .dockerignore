@@ -1,0 +1,10 @@
+helmet_env_py39/
+__pycache__/
+*.mp4
+*.gif
+*.pt
+runs/
+dataset/
+.git/
+*.pyc
+*.log
