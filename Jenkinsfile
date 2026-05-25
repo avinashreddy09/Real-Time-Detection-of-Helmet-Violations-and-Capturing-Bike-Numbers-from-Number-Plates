@@ -14,19 +14,19 @@ pipeline {
         }
         stage('Test YOLO') {
             steps {
-                bat 'C:\\Users\\avina\\AppData\\Local\\Programs\\Python\\Python39\\python.exe -c "from ultralytics import YOLO; print(\"YOLO imported successfully\")"'
+                bat 'C:\\Users\\avina\\AppData\\Local\\Programs\\Python\\Python39\\python.exe -c "from ultralytics import YOLO; print(\'YOLO imported successfully\')"'
                 echo '✅ YOLO test passed'
             }
         }
         stage('Test OpenCV') {
             steps {
-                bat 'C:\\Users\\avina\\AppData\\Local\\Programs\\Python\\Python39\\python.exe -c "import cv2; print(f\"OpenCV version: {cv2.__version__}\")"'
+                bat 'C:\\Users\\avina\\AppData\\Local\\Programs\\Python\\Python39\\python.exe -c "import cv2; print(\'OpenCV version: \' + cv2.__version__)"'
                 echo '✅ OpenCV test passed'
             }
         }
         stage('Test EasyOCR') {
             steps {
-                bat 'C:\\Users\\avina\\AppData\\Local\\Programs\\Python\\Python39\\python.exe -c "import easyocr; print(\"EasyOCR imported successfully\")"'
+                bat 'C:\\Users\\avina\\AppData\\Local\\Programs\\Python\\Python39\\python.exe -c "import easyocr; print(\'EasyOCR imported successfully\')"'
                 echo '✅ EasyOCR test passed'
             }
         }
