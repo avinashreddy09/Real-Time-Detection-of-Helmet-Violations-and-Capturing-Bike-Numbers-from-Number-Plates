@@ -10,7 +10,7 @@ reader = easyocr.Reader(['en'])
 model = YOLO('yolov8n.pt')
 
 # Video path (change this to your video)
-video_path = "bike.gif"  # or your video path
+video_path = r"C:\Users\avina\Downloads\12.mp4"  # or your video path
 output_path = "helmet_plate_output.mp4"
 
 cap = cv2.VideoCapture(video_path)

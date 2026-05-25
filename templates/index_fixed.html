@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helmet & Number Plate Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        
+        /* Color Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .legend-color.green { background: #00ff00; }
+        .legend-color.orange { background: #ffa500; }
+        .legend-color.red { background: #ff0000; }
+        
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #4CAF50;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .upload-area:hover {
+            border-color: #ff5722;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            background: #333;
+            border-radius: 10px;
+            height: 30px;
+            margin: 20px 0;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            width: 0%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-text {
+            text-align: center;
+            margin: 15px 0;
+            color: #ff9800;
+            font-size: 14px;
+        }
+        
+        /* Video Player */
+        .video-section {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .video-section h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+        
+        video {
+            width: 100%;
+            max-height: 500px;
+            background: #000;
+            border-radius: 10px;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: #ff4444;
+        }
+        
+        .success {
+            color: #4CAF50;
+        }
+        
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .reset-btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .reset-btn:hover {
+            background: #e64a19;
+        }
+        
+        .file-info {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ Helmet & Number Plate Detection System</h1>
+        <p class="subtitle">Upload a video - AI processes and shows output directly</p>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color green"></div><span>Rider (Person)</span></div>
+            <div class="legend-item"><div class="legend-color orange"></div><span>Motorcycle</span></div>
+            <div class="legend-item"><div class="legend-color red"></div><span>Number Plate / Violation</span></div>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            📁 Click or Drag & Drop Video Here
+            <div class="file-info">Supports: MP4, AVI, MOV (Max 200MB)</div>
+        </div>
+        
+        <input type="file" id="fileInput" accept="video/*" style="display: none;">
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+        
+        <div id="statusText" class="status-text"></div>
+        
+        <div class="video-section" id="videoSection">
+            <h3>📹 Processed Output Video</h3>
+            <video id="outputVideo" controls autoplay></video>
+            <div class="btn-group">
+                <button class="reset-btn" id="resetBtn">🔄 Process Another Video</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTaskId = null;
+        let currentOutputFile = null;
+        
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        
+        uploadArea.onclick = () => fileInput.click();
+        
+        fileInput.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Reset UI
+            document.getElementById('videoSection').style.display = 'none';
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('statusText').innerHTML = '📤 Uploading video... <span class="spinner"></span>';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+            
+            const formData = new FormData();
+            formData.append('video', file);
+            
+            try {
+                const uploadRes = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await uploadRes.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                currentTaskId = data.task_id;
+                document.getElementById('statusText').innerHTML = '⚙️ Processing video... This may take a few minutes <span class="spinner"></span>';
+                pollStatus();
+                
+            } catch (error) {
+                document.getElementById('statusText').innerHTML = `<span class="error">❌ Upload failed: ${error.message}</span>`;
+                document.getElementById('progressContainer').style.display = 'none';
+            }
+        };
+        
+        async function pollStatus() {
+            if (!currentTaskId) return;
+            
+            try {
+                const res = await fetch(`/status/${currentTaskId}`);
+                const data = await res.json();
+                
+                if (data.progress !== undefined) {
+                    const progress = Math.round(data.progress);
+                    document.getElementById('progressBar').style.width = `${progress}%`;
+                    document.getElementById('progressBar').textContent = `${progress}%`;
+                }
+                
+                if (data.status === 'completed') {
+                    document.getElementById('progressContainer').style.display = 'none';
+                    document.getElementById('statusText').innerHTML = '<span class="success">✅ Processing complete! Playing video...</span>';
+                    document.getElementById('videoSection').style.display = 'block';
+                    
+                    currentOutputFile = data.output_file;
+                    const videoUrl = `/video/${currentOutputFile}`;
+                    const videoElement = document.getElementById('outputVideo');
+                    videoElement.src = videoUrl;
+                    videoElement.load();
+                    
+                } else if (data.status === 'error') {
+                    document.getElementById('statusText').innerHTML = `<span class="error">❌ Error: ${data.error}</span>`;
+                    document.getElementById('progressContainer').style.display = 'none';
+                } else {
+                    setTimeout(pollStatus, 2000);
+                }
+            } catch (error) {
+                document.getElementById('statusText').innerHTML = '<span class="error">❌ Error checking status</span>';
+            }
+        }
+        
+        document.getElementById('resetBtn').onclick = () => {
+            location.reload();
+        };
+    </script>
+</body>
+</html>
