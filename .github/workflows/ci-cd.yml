@@ -20,16 +20,17 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pip install ultralytics opencv-python numpy
+        pip install ultralytics opencv-python numpy easyocr
     
     - name: Test imports
       run: |
         python -c "from ultralytics import YOLO; print('✅ YOLO OK')"
         python -c "import cv2; print('✅ OpenCV OK')"
+        python -c "import easyocr; print('✅ EasyOCR OK')"
     
     - name: Check Python files
       run: |
-        find . -name "*.py" -type f | head -5
+        ls -la *.py
         echo "✅ Found Python files"
 
   # Job 2: Build and test Docker
@@ -51,7 +52,7 @@ jobs:
         COPY requirements.txt .
         RUN pip install --no-cache-dir -r requirements.txt
         COPY . .
-        CMD ["python", "helmet_plate_detection.py"]
+        CMD ["python", "22.py"]
         EOF
     
     - name: Create requirements.txt
@@ -60,6 +61,7 @@ jobs:
         ultralytics>=8.0.0
         opencv-python>=4.8.0
         numpy>=1.24.0
+        easyocr>=1.7.0
         EOF
     
     - name: Build Docker image
@@ -86,18 +88,6 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Create Dockerfile for push
-      run: |
-        cat > Dockerfile << 'EOF'
-        FROM python:3.9-slim
-        WORKDIR /app
-        RUN apt-get update && apt-get install -y libglib2.0-0 && rm -rf /var/lib/apt/lists/*
-        COPY requirements.txt .
-        RUN pip install --no-cache-dir -r requirements.txt
-        COPY . .
-        CMD ["python", "helmet_plate_detection.py"]
-        EOF
     
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
