@@ -48,7 +48,7 @@ while True:
             if class_name == 'person':
                 total_persons += 1
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, f"RIDER DETECTED", (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                cv2.putText(frame, f"RIDER", (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                 
                 # Helmet check
                 head_roi = frame[y1:y1+int((y2-y1)*0.2), x1:x2]
