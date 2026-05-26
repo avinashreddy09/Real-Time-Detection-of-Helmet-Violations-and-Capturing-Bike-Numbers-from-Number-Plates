@@ -1,0 +1,100 @@
+name: Helmet Detection - GitHub Actions CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  # JOB 1: Test Python Code
+  test-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install ultralytics opencv-python easyocr numpy
+
+      - name: Test YOLO import
+        run: python -c "from ultralytics import YOLO; print('✅ YOLO OK')"
+
+      - name: Test OpenCV import
+        run: python -c "import cv2; print('✅ OpenCV OK')"
+
+      - name: Test EasyOCR import
+        run: python -c "import easyocr; print('✅ EasyOCR OK')"
+
+      - name: List Python files
+        run: ls -la *.py
+
+  # JOB 2: Docker Build Test
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: test-python
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create Dockerfile
+        run: |
+          cat > Dockerfile << 'EOF'
+          FROM python:3.9-slim
+          WORKDIR /app
+          RUN apt-get update && apt-get install -y libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+          COPY requirements.txt .
+          RUN pip install --no-cache-dir -r requirements.txt
+          COPY . .
+          CMD ["python", "22.py"]
+          EOF
+
+      - name: Create requirements.txt
+        run: |
+          cat > requirements.txt << 'EOF'
+          ultralytics>=8.0.0
+          opencv-python>=4.8.0
+          numpy>=1.24.0
+          easyocr>=1.7.0
+          EOF
+
+      - name: Build Docker image
+        run: docker build -t helmet-detector .
+
+      - name: Test Docker image
+        run: docker run --rm helmet-detector python -c "from ultralytics import YOLO; print('✅ Docker YOLO OK')"
+
+  # JOB 3: Push to GitHub Container Registry
+  push-to-ghcr:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
